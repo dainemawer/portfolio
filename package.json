@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "biome check .",
     "format": "biome format --write .",
-    "check": "biome check --write ."
+    "check": "biome check --write .",
+    "prepare": "husky"
   },
   "dependencies": {
     "next": "16.1.6",
@@ -21,7 +22,14 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,cjs,mjs,cts,mts,json,jsonc,css}": [
+      "biome check --write --files-ignore-unknown=true --no-errors-on-unmatched"
+    ]
   }
 }
