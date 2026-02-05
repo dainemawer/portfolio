@@ -41,12 +41,16 @@
     {
       "includes": [
         "src/payload-types.ts",
-        "src/app/(payload)/admin/importMap.js"
+        "src/app/**/importMap.js",
+        "src/migrations/**"
       ],
       "formatter": {
         "enabled": false
       },
       "linter": {
+        "enabled": false
+      },
+      "assist": {
         "enabled": false
       }
     }
