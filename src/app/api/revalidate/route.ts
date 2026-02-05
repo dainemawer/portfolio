@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     );
   }
 
-  for (const tag of body.tags) revalidateTag(tag);
+  for (const tag of body.tags) revalidateTag(tag, { expire: 0 });
 
   return NextResponse.json({ ok: true, revalidated: body.tags });
 }
