@@ -1,0 +1,53 @@
+name: Migrate DB and Deploy (Production)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: prod-migrate-deploy
+  cancel-in-progress: false
+
+jobs:
+  migrate_and_deploy:
+    name: Migrate DB then trigger Vercel deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Migration status (production)
+        env:
+          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+          PAYLOAD_SECRET: ${{ secrets.PROD_PAYLOAD_SECRET }}
+        run: npm run payload -- migrate:status
+
+      - name: Run migrations (production)
+        env:
+          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+          PAYLOAD_SECRET: ${{ secrets.PROD_PAYLOAD_SECRET }}
+        run: |
+          set -euo pipefail
+          # If Payload detects prior dev-mode schema pushes, it will prompt for confirmation.
+          # Provide a newline so CI doesn't hang waiting for input.
+          printf "y\n" | npm run payload -- migrate
+
+      - name: Trigger Vercel production deploy
+        env:
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          set -euo pipefail
+          curl -fsSL -X POST "$VERCEL_DEPLOY_HOOK_URL"
+
